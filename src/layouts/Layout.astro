@@ -15,7 +15,15 @@ import AppWrapper from '../components/UI/AppWrapper';
 		<link rel="icon" type="image/png" sizes='32x32' href="/logos/favicon.png" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{Astro.props.title}</title>
-		
+		<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-BTC5XWKW6Y"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-BTC5XWKW6Y');
+</script>
 	</head>
 	<body >
 
