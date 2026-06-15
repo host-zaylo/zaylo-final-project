@@ -109,81 +109,74 @@ export const POST: APIRoute = async ({ request }) => {
       console.log("[Webhook] Email já enviado ou sem email — pulando");
     }
 
-    // ─── 2. Bling — contato + venda ─────────────────────────────────────────
-    if (!blingProcessed && cpfCnpj && itens.length > 0) {
-      if (!endereco?.logradouro || !endereco?.numero) {
-        console.warn("[Webhook] Endereço incompleto no pedido — pulando Bling:", orderId);
-      } else {
-        try {
-          const itensComSpecs = itens.map((i: any) => {
-            const specs = getShippingSpecs(i.slug, i.tamanhoSelecionado);
-            return {
-              ...i,
-              specs,
-            };
-          });
-          const pesoBruto = itensComSpecs.reduce((s: number, i: any) => s + i.specs.weight * i.quantidade, 0);
-          const pkg = calculatePackageDimensions(itensComSpecs.map((i: any) => ({
-            slug: i.slug, selectedSize: i.tamanhoSelecionado, quantity: i.quantidade,
-          })));
+    // ─── Respond before Bling ─────────────────────────────────────────────
+    // Return immediately so Asaas doesn't wait. Bling runs in background.
 
-          const result = await createVenda({
-            nome,
-            email,
-            cpfCnpj,
-            telefone,
-            itens: itensComSpecs.map((i: any) => ({
-              blingId: buscarBlingId(i.slug, i.corVarianteSelecionada, i.tamanhoSelecionado) ?? i.blingId ?? i.produtoId ?? i.id,
-              quantidade: i.quantidade,
-              valor: i.preco,
-              peso: i.specs.weight,
-              altura: i.specs.height,
-              largura: i.specs.width,
-              comprimento: i.specs.length,
-            })),
-            total,
-            endereco: {
-              cep: endereco.cep,
-              logradouro: endereco.logradouro,
-              numero: endereco.numero,
-              complemento: endereco.complemento,
-              bairro: endereco.bairro,
-              cidade: endereco.cidade,
-              uf: endereco.uf,
-            },
-            condicaoPagamento,
-            observacao,
-            descontoValor,
-            descontoPercent,
-            fretePreco: freteSelecionado?.price ?? 0,
-            pesoBruto,
-            quantidadeVolumes: 1,
-            volumes: [{ peso: pesoBruto, altura: pkg.height, largura: pkg.width, comprimento: pkg.length }],
-          });
-
-          const blingVendaId = result?.venda?.data?.id ?? null;
-          const blingContatoId = result?.contatoId ?? null;
-          console.log("[Bling] Venda criada:", blingVendaId ?? "ok", "| Contato:", blingContatoId);
-
-          const latest = await getOrderNormalized(orderId) ?? orderMeta;
-          await saveOrderNormalized(orderId, {
-            ...latest,
-            blingProcessed: 1,
-          });
-
-          console.log("[Webhook] Bling processado e salvo no Turso");
-        } catch (e) {
-          console.error("[Bling] Erro ao criar venda:", e);
-        }
-      }
-    } else {
-      console.log("[Webhook] Bling já processado ou sem dados — pulando");
-    }
-
-    return new Response(
+    const webhookRes = new Response(
       JSON.stringify({ ok: true, orderId }),
       { status: 200 }
     );
+
+    ;(async () => {
+      // ─── Background: Bling — contato + venda ───────────────────────────────
+      if (!blingProcessed && cpfCnpj && itens.length > 0) {
+        if (!endereco?.logradouro || !endereco?.numero) {
+          console.warn("[Webhook] Endereço incompleto no pedido — pulando Bling:", orderId);
+        } else {
+          try {
+            const itensComSpecs = itens.map((i: any) => {
+              const specs = getShippingSpecs(i.slug, i.tamanhoSelecionado);
+              return { ...i, specs };
+            });
+            const pesoBruto = itensComSpecs.reduce((s: number, i: any) => s + i.specs.weight * i.quantidade, 0);
+            const pkg = calculatePackageDimensions(itensComSpecs.map((i: any) => ({
+              slug: i.slug, selectedSize: i.tamanhoSelecionado, quantity: i.quantidade,
+            })));
+
+            const result = await createVenda({
+              nome, email, cpfCnpj, telefone,
+              itens: itensComSpecs.map((i: any) => ({
+                blingId: buscarBlingId(i.slug, i.corVarianteSelecionada, i.tamanhoSelecionado) ?? i.blingId ?? i.produtoId ?? i.id,
+                quantidade: i.quantidade,
+                valor: i.preco,
+                peso: i.specs.weight,
+                altura: i.specs.height,
+                largura: i.specs.width,
+                comprimento: i.specs.length,
+              })),
+              total,
+              endereco: {
+                cep: endereco.cep, logradouro: endereco.logradouro, numero: endereco.numero,
+                complemento: endereco.complemento, bairro: endereco.bairro, cidade: endereco.cidade, uf: endereco.uf,
+              },
+              condicaoPagamento,
+              observacao,
+              descontoValor,
+              descontoPercent,
+              fretePreco: freteSelecionado?.price ?? 0,
+              pesoBruto,
+              quantidadeVolumes: 1,
+              volumes: [{ peso: pesoBruto, altura: pkg.height, largura: pkg.width, comprimento: pkg.length }],
+            });
+
+            const blingVendaId = result?.venda?.data?.id ?? null;
+            const blingContatoId = result?.contatoId ?? null;
+            console.log("[Bling] Venda criada:", blingVendaId ?? "ok", "| Contato:", blingContatoId);
+
+            const latest = await getOrderNormalized(orderId) ?? orderMeta;
+            await saveOrderNormalized(orderId, { ...latest, blingProcessed: 1 });
+
+            console.log("[Webhook] Bling processado e salvo no Turso");
+          } catch (e) {
+            console.error("[Bling] Erro ao criar venda:", e);
+          }
+        }
+      } else {
+        console.log("[Webhook] Bling já processado ou sem dados — pulando");
+      }
+    })().catch(err => console.error("[Webhook] Background Bling error:", err));
+
+    return webhookRes;
   } catch (error: any) {
     console.error("[Webhook] Error:", error);
     return new Response(JSON.stringify({ error: error.message }), { status: 500 });
