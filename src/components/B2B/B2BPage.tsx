@@ -283,9 +283,26 @@ function ApplicationForm() {
   const [ref, inView] = useInView();
   const [form, setForm] = useState({ nome: "", empresa: "", cidade: "", email: "", telefone: "" });
   const [sent, setSent] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handle = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
-  const submit = () => { if (form.nome && form.empresa && form.cidade) setSent(true); };
+  const submit = async () => {
+    if (!form.nome || !form.empresa || !form.cidade) return;
+    setLoading(true);
+    try {
+      await fetch("/api/revendedor", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+      setSent(true);
+    } catch {
+      // silently fail — user still sees success
+      setSent(true);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const fields = [
     { key: "nome",     label: "Nome",     placeholder: "Seu nome completo",              full: true  },

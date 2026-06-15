@@ -5,7 +5,7 @@ const COMPANY_EMAIL = "contato@zaylo.com.br";
 const FROM_EMAIL = "contato@zaylo.com.br";
 const SITE_URL = import.meta.env.SITE_URL ?? "https://zaylo.com.br";
 
-async function sendEmail(to: string, subject: string, html: string, fromName?: string) {
+export async function sendEmail(to: string, subject: string, html: string, fromName?: string) {
   const from = fromName ? `${fromName} <${FROM_EMAIL}>` : FROM_EMAIL;
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -43,7 +43,7 @@ const BASE_STYLE = `
   </style>
 `;
 
-function wrapHtml(body: string) {
+export function wrapHtml(body: string) {
   return `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">${BASE_STYLE}</head><body><div class="container"><div class="header"><img src="https://res.cloudinary.com/dgqjmi3zc/image/upload/v1780866644/zaylo-logo_mdtz2o.png" alt="Zaylo" style="height:32px;width:auto;display:block;margin:0 auto"></div><div class="content">${body}</div><div class="footer"><p>Zaylo — Todos os direitos reservados</p></div></div></body></html>`;
 }
 
