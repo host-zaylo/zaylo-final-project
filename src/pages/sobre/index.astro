@@ -1,10 +1,10 @@
 ---
-import TextTwoContainer from '../../components/Sobre/TextTwoContainer';
+import TextTwoContainer from '../../components/Sobre/TextTwoContainer.astro';
 import Layout from '../../layouts/Layout.astro';
 import MainVideoContainer from '../../components/Sobre/MainVideo';
-import TextThreeContainer from '../../components/Sobre/TextThreeContainer';
-import TextFourContainer from '../../components/Sobre/TextFourContainer';
-import TextFiveContainer from '../../components/Sobre/TextFiveContainer';
+import TextThreeContainer from '../../components/Sobre/TextThreeContainer.astro';
+import TextFourContainer from '../../components/Sobre/TextFourContainer.astro';
+import TextFiveContainer from '../../components/Sobre/TextFiveContainer.astro';
 ---
 
 <Layout title="Sobre">
@@ -12,15 +12,15 @@ import TextFiveContainer from '../../components/Sobre/TextFiveContainer';
 
   <div class="w-full h-full bg-black flex justify-center items-center  flex-col">
 
-    <MainVideoContainer client:load/>
+    <MainVideoContainer client:visible />
     <div class="flex sm:flex-row flex-col h-full w-full">
-      <TextTwoContainer client:load/>
-      <TextThreeContainer client:load/>
+      <TextTwoContainer />
+      <TextThreeContainer />
     </div>
 
     <div class="flex sm:flex-row flex-col h-full w-full">
-    <TextFourContainer client:load/>
-    <TextFiveContainer client:load/>
+    <TextFourContainer />
+    <TextFiveContainer />
     </div>
 
   </div>

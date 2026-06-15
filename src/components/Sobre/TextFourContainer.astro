@@ -1,0 +1,35 @@
+---
+import texts from "../../texts.json";
+---
+
+<section id="content" class="w-full flex flex-col justify-center items-center">
+  <div class="relative w-full flex justify-center items-center">
+    <div class="relative w-full aspect-[3/4] overflow-hidden sm:max-h-212">
+      <img src="/photos/sobre/07.webp" alt="Zaylo" class="absolute inset-0 w-full h-full object-cover" />
+      <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center gap-6 p-4">
+        <div class="flex flex-col justify-between items-center w-full h-full py-4">
+          <div class="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-black via-black/50 to-transparent z-10"></div>
+          <div class="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-black via-black/50 to-transparent z-10"></div>
+          <div class="flex justify-between h-full items-end flex-col w-full gap-2 z-20">
+            <p class="text-white text-xs md:text-xs font-body font-light tracking-base px-4 text-right animate-fade-up">
+              {texts.about["text-04"]}
+            </p>
+            <p class="text-white text-xs md:text-xs font-body font-light tracking-base px-4 text-left animate-fade-up" style="animation-delay: 0.3s">
+              {texts.about["text-05"]}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-up {
+    animation: fadeUp 0.8s ease-out 0.2s both;
+  }
+</style>

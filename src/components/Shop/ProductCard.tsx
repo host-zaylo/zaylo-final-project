@@ -1,7 +1,6 @@
-import React, { useCallback, useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import useEmblaCarousel from "embla-carousel-react";
-import { ChevronLeft, ChevronRight, ShoppingCart, X } from "lucide-react";
+import { ShoppingCart, X } from "lucide-react";
 import { useCart } from "../Shop/CartContext";
 import type { Product } from "../../data/products";
 
@@ -32,59 +31,24 @@ function ProductCard({ product }: { product: Product }) {
   const [showQuickShop, setShowQuickShop] = useState(false);
 
   const images = selectedVariant?.images || [];
-  const hasMultipleImages = images.length > 1;
-
-  const [emblaRef, emblaApi] = useEmblaCarousel({ loop: true });
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
 
   return (
     <>
       <div className="flex flex-col transition-all duration-300 sm:max-w-xs">
         <a href={`/produtos/${product.slug}`} className="block">
           <div className="flex-shrink-0 relative">
-            {hasMultipleImages ? (
-              <div className="relative group">
-                <div
-                  className="embla overflow-hidden"
-                  ref={emblaRef}
-                  style={{ backgroundImage: "url('/background/background.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
-                >
-                  <div className="embla__container flex select-none border border-black">
-                    {images.map((src: string, i: number) => (
-                      <div className="embla__slide flex-shrink-0 w-full aspect-[3/4] flex justify-center items-center" key={i}>
-                        <img src={src} alt={`${product.title} image ${i + 1}`} className="w-full h-full object-cover z-10" loading="lazy" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <button onClick={scrollPrev} className="absolute top-1/2 -translate-y-1/2 left-2 bg-opacity-50 rounded-full p-1 z-20 hidden" aria-label="Previous image">
-                  <ChevronLeft className="text-[#131819]" size={24} />
-                </button>
-                <button onClick={scrollNext} className="absolute top-1/2 -translate-y-1/2 right-2 bg-opacity-50 rounded-full p-1 z-20 hidden group-hover:block" aria-label="Next image">
-                  <ChevronRight className="text-[#131819]" size={24} />
-                </button>
-                <button
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowQuickShop(true); }}
-                  className="absolute bottom-4 right-4 w-11 h-11 rounded-full flex items-center justify-center shadow-xl bg-white transition-all z-30"
-                >
-                  <ShoppingCart className="w-5 h-5 text-[#131819]" strokeWidth={1.5} />
-                </button>
-              </div>
-            ) : (
-              <div
-                className="shadow-xl rounded-t-xl w-full aspect-[3/4] bg-[#f5f5f5] flex justify-center items-center relative"
-                style={{ backgroundImage: "url('/background/background.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
+            <div
+              className="shadow-xl rounded-t-xl w-full aspect-[3/4] bg-[#f5f5f5] flex justify-center items-center relative"
+              style={{ backgroundImage: "url('/background/background.jpg')", backgroundSize: "cover", backgroundPosition: "center" }}
+            >
+              <img src={images[0] || "/path/to/fallback.jpg"} alt={product.title} className="w-full h-full object-contain z-10 aspect-[3/4]" loading="lazy" />
+              <button
+                onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowQuickShop(true); }}
+                className="absolute bottom-4 left-4 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-xl hover:bg-gray-50 transition-all z-30"
               >
-                <img src={images[0] || "/path/to/fallback.jpg"} alt={product.title} className="w-full h-full object-contain z-10 aspect-[3/4]" loading="lazy" />
-                <button
-                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShowQuickShop(true); }}
-                  className="absolute bottom-4 left-4 w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-xl hover:bg-gray-50 transition-all z-30"
-                >
-                  <ShoppingCart className="w-5 h-5 text-black" strokeWidth={1.5} />
-                </button>
-              </div>
-            )}
+                <ShoppingCart className="w-5 h-5 text-black" strokeWidth={1.5} />
+              </button>
+            </div>
           </div>
         </a>
 

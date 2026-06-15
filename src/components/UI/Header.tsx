@@ -1,5 +1,5 @@
 // Full corrected file
-import { useEffect, useState, Fragment } from 'react';
+import { useEffect, useState, Fragment, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import clsx from 'clsx';
 import { ShoppingCart } from 'lucide-react';
@@ -55,37 +55,52 @@ const HeaderComponent = () => {
   };
 
   const [showHeader, setShowHeader] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
   const [isScrolled, setIsScrolled] = useState(false);
- useEffect(() => {
-  const path = window.location.pathname;
+  const lastScrollY = useRef(0);
+  const ticking = useRef(false);
 
-  if (path === '/products' || path.startsWith('/produtos/')) {
-    setIsProductPage(true);
-  }
-}, []);
-
-const forceDarkHeader = isProductPage;
-
-useEffect(() => {
-  const handleScroll = () => {
-    const currentScroll = window.scrollY;
-
-    // Show/hide header on scroll
-    if (currentScroll < lastScrollY) {
-      setShowHeader(true);
-    } else {
-      setShowHeader(false);
+  useEffect(() => {
+    const path = window.location.pathname;
+    if (path === '/products' || path.startsWith('/produtos/')) {
+      setIsProductPage(true);
     }
-    // Turn header white after 50px
-    setIsScrolled(currentScroll > 50);
+  }, []);
 
-    setLastScrollY(currentScroll);
-  };
+  const forceDarkHeader = isProductPage;
 
-  window.addEventListener("scroll", handleScroll);
-  return () => window.removeEventListener("scroll", handleScroll);
-}, [lastScrollY]);
+  useEffect(() => {
+    const handleScroll = () => {
+      if (!ticking.current) {
+        window.requestAnimationFrame(() => {
+          const currentScroll = window.scrollY;
+
+          if (currentScroll > 50) {
+            setIsScrolled(true);
+          } else {
+            setIsScrolled(false);
+          }
+
+          if (Math.abs(currentScroll - lastScrollY.current) < 5) {
+            ticking.current = false;
+            return;
+          }
+
+          if (currentScroll < lastScrollY.current) {
+            setShowHeader(true);
+          } else if (currentScroll > 100 && currentScroll > lastScrollY.current) {
+            setShowHeader(false);
+          }
+
+          lastScrollY.current = currentScroll;
+          ticking.current = false;
+        });
+        ticking.current = true;
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
 
   return (
@@ -98,7 +113,7 @@ useEffect(() => {
   : "bg-black text-black/50"
   )}
   animate={{ y: showHeader ? 0 : -80, opacity: showHeader ? 1 : 0 }}
-  transition={{ duration: 0.35, ease: "easeOut" }}
+  transition={{ type: "spring", stiffness: 260, damping: 30, mass: 0.8 }}
 >
        <nav className="w-full mx-auto flex px-4 sm:px-32 justify-between items-center py-4">
   <div className="flex items-center gap-6 ">

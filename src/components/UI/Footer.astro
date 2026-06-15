@@ -1,0 +1,147 @@
+---
+import texts from "../../texts.json";
+
+const isRevendedorPage = Astro.url.pathname.replace(/\/$/, "") === "/revendedor" || Astro.url.pathname.startsWith("/revendedor/");
+
+const helpLinks = [
+  { title: "menu.envios", path: "/ajuda" },
+  { title: "menu.pagamento", path: "/ajuda#section6" },
+  { title: "menu.faq", path: "/ajuda" },
+];
+
+const aboutLinks = [
+  { title: "menu.blog", path: "/blog" },
+  { title: "menu.about_us", path: "/sobre" },
+  { title: "menu.resell", path: "/revendedor" },
+];
+
+function tx(path) {
+  const parts = path.split(".");
+  let cur = texts;
+  for (const part of parts) {
+    if (cur == null || typeof cur !== "object") return path;
+    cur = cur[part];
+  }
+  return typeof cur === "string" ? cur : path;
+}
+---
+
+{
+  !isRevendedorPage && (
+    <footer class="w-full flex flex-col bg-black relative">
+      <div class="bg-black text-amber-50 py-1 px-4 md:px-16 flex flex-wrap justify-center gap-x-8 gap-y-4 border-b border-gray-700 font-body italic">
+        <a href="/privacidade" class="hover:text-gray-400 uppercase text-sm font-body font-light tracking-wide animate-fade-in">
+          {"POLiTICA DE PRIVACIDADE"}
+        </a>
+      </div>
+
+      <div class="bg-black text-white sm:py-12 px-4 md:px-16 grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+        <div class="flex flex-col justify-center items-center py-4">
+          <div class="flex flex-col gap-4 justify-center items-center">
+            <div class="w-full flex justify-center items-center animate-fade-in">
+              <a href="#">
+                <img class="max-w-8" src="/logos/favicon-zaylo.png" alt="Zaylo" />
+              </a>
+            </div>
+            <div class="flex gap-4 justify-center items-center w-full">
+              <a href="https://www.instagram.com/zaylobr" aria-label="Instagram" class="hover:scale-110 transition-transform">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" stroke-width="1.5"/>
+                  <circle cx="12" cy="12" r="5" stroke-width="1.5"/>
+                  <circle cx="17.5" cy="6.5" r="1.5" fill="currentColor" stroke="none"/>
+                </svg>
+              </a>
+              <a href="https://www.youtube.com/@zaylobr" aria-label="YouTube" class="hover:scale-110 transition-transform">
+                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path d="M22.54 6.42a2.78 2.78 0 00-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 00-1.94 2A29.74 29.74 0 001 12a29.74 29.74 0 00.46 5.58 2.78 2.78 0 001.94 2C5.12 20 12 20 12 20s6.88 0 8.6-.46a2.78 2.78 0 001.94-2A29.74 29.74 0 0023 12a29.74 29.74 0 00-.46-5.58z" stroke-width="1.5"/>
+                  <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none"/>
+                </svg>
+              </a>
+              <a href="https://wa.me/552135592431" aria-label="WhatsApp" class="hover:scale-110 transition-transform">
+                <img src="/icons/whatsapp.png" class="max-w-7 invert" />
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-3 items-center md:items-start md:text-left w-full sm:border-0 border-gray-200/20 border-b-1 pb-4">
+          <details class="w-full md:flex md:flex-col md:gap-3" open>
+            <summary class="flex justify-between items-center text-start sm:items-start w-full md:cursor-default cursor-pointer px-4 list-none md:list-none">
+              <h3 class="fill-over-stroke font-heading font-bold text-md uppercase sm:text-2xl stroke stroke-black-2 sm:-translate-x-4">Ajuda</h3>
+              <span class="md:hidden text-white chevron-icon">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </span>
+            </summary>
+            <div class="flex flex-col gap-3 items-center md:items-start text-center md:text-left w-full pt-4 md:pt-0">
+              {helpLinks.map((link, index) => (
+                <a href={link.path} class="font-heading font-bold uppercase text-white hover:text-gray-400 text-xs whitespace-nowrap animate-fade-in" style={`animation-delay: ${index * 0.03}s`}>
+                  {tx(link.title)}
+                </a>
+              ))}
+            </div>
+          </details>
+        </div>
+
+        <div class="flex flex-col gap-3 items-center md:items-start text-center md:text-left w-full pb-4">
+          <details class="w-full md:flex md:flex-col md:gap-3" open>
+            <summary class="flex justify-between items-center w-full md:cursor-default cursor-pointer px-4 md:p-0 list-none md:list-none">
+              <h3 class="fill-over-stroke font-heading font-bold text-md uppercase sm:text-2xl stroke stroke-black-2 sm:-translate-x-4">Sobre</h3>
+              <span class="md:hidden text-white chevron-icon">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </span>
+            </summary>
+            <div class="flex flex-col gap-3 items-center md:items-start text-center md:text-left w-full pt-4 md:pt-0">
+              {aboutLinks.map((link, index) => (
+                <a href={link.path} class="font-heading font-bold uppercase text-white hover:text-gray-400 text-xs whitespace-nowrap animate-fade-in" style={`animation-delay: ${index * 0.03}s`}>
+                  {tx(link.title)}
+                </a>
+              ))}
+            </div>
+          </details>
+        </div>
+      </div>
+
+      <div class="bg-black text-xs text-gray-400 py-3 px-4 md:px-16 flex flex-col md:flex-row justify-between items-center text-center gap-1 animate-fade-in">
+        <p class="font-body font-light tracking-wide text-white hover:text-gray-400 text-xs hover:scale-102 transition-transform">
+          Zaylo. All rights reserved. © 2026
+        </p>
+        <div class="flex flex-col md:flex-row gap-2 md:gap-4">
+          <a href="https://www.industriebrasil.com.br" class="font-body font-light tracking-wide text-white hover:text-gray-400 text-xs hover:underline whitespace-nowrap transition duration-200 ease-in-out hover:scale-105">
+            Produced by Industrie Brasil
+          </a>
+        </div>
+      </div>
+    </footer>
+  )
+}
+
+<style>
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out both;
+  }
+  details > summary {
+    list-style: none;
+  }
+  details > summary::-webkit-details-marker {
+    display: none;
+  }
+  details[open] .chevron-icon svg {
+    transform: rotate(180deg);
+  }
+  .chevron-icon svg {
+    transition: transform 0.3s ease;
+  }
+  @media (min-width: 768px) {
+    details:not([open]) .chevron-icon svg {
+      transform: rotate(0deg);
+    }
+  }
+</style>

@@ -22,6 +22,6 @@ if (!post?.data) {
 
 <Layout title={post.data.title}>
   <div class="font-blog">
-    <PostPage post={post} client:load />
+    <PostPage post={post} client:visible />
   </div>
 </Layout>

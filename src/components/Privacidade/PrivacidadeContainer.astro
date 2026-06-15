@@ -1,0 +1,94 @@
+---
+import texts from "../../texts.json";
+
+const collection = ["3", "4", "5", "6", "7"];
+---
+
+<section id="content" class="w-full flex justify-center text-white bg-[radial-gradient(ellipse_at_center,_#1A2327_0%,_#131819_45%,_#000000_100%)]">
+  <div class="w-full max-w-3xl px-8 py-16 flex flex-col gap-10">
+    <h1 class="text-xl font-heading font-bold text-center animate-fade-up">{texts.privacy.title}</h1>
+    <p class="text-xs text-center opacity-70 animate-fade-up">{texts.privacy.updated}</p>
+
+    <div class="flex flex-col gap-3">
+      {Array.from({ length: 7 }).map((_, i) => (
+        <p class="text-xs font-body font-light leading-relaxed animate-fade-up" style={`animation-delay: ${(i + 1) * 0.05}s`}>
+          {texts.privacy.intro[`0${i + 1}`]}
+        </p>
+      ))}
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <h2 class="text-sm font-heading font-bold animate-fade-up">{"1. Definições"}</h2>
+      {["01", "02", "03", "04"].map((key) => (
+        <p class="text-xs font-body font-light animate-fade-up" style={`animation-delay: ${parseInt(key) * 0.05}s`}>
+          {texts.privacy.definitions[key]}
+        </p>
+      ))}
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <h2 class="text-sm font-heading font-bold animate-fade-up">{"2. Uso de Dados Pessoais"}</h2>
+      {["01","02","03","04","05","06","07"].map((key) => (
+        <p class="text-xs font-body font-light animate-fade-up" style={`animation-delay: ${parseInt(key) * 0.04}s`}>
+          {texts.privacy.usage[key]}
+        </p>
+      ))}
+    </div>
+
+    {collection.map((section) => {
+      const sectionData = texts.privacy.collection[section];
+      if (!sectionData) return null;
+      return (
+        <div class="flex flex-col gap-3">
+          <h2 class="text-sm font-heading font-bold animate-fade-up">{sectionData.title}</h2>
+          {Array.isArray(sectionData.items) && sectionData.items.map((item, idx) => (
+            <p class="text-xs font-body font-light animate-fade-up" style={`animation-delay: ${idx * 0.05}s`}>
+              {item}
+            </p>
+          ))}
+          {sectionData.sections && Object.entries(sectionData.sections).map(([key, value]) => (
+            <div class="flex flex-col gap-2 pl-2">
+              <p class="text-xs font-heading font-bold animate-fade-up">{value.title}</p>
+              {Array.isArray(value.items) && value.items.map((item, idx) => (
+                <p class="text-xs font-body font-light animate-fade-up" style={`animation-delay: ${idx * 0.05}s`}>
+                  {item}
+                </p>
+              ))}
+            </div>
+          ))}
+        </div>
+      );
+    })}
+
+    <div class="flex flex-col gap-3">
+      <h2 class="text-sm font-heading font-bold animate-fade-up">{"8. Direitos do Usuário"}</h2>
+      {["01", "02"].map((key) => (
+        <p class="text-xs font-body font-light animate-fade-up">{texts.privacy.rights[key]}</p>
+      ))}
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <h2 class="text-sm font-heading font-bold animate-fade-up">{"9. Segurança dos Dados"}</h2>
+      {["01", "02"].map((key) => (
+        <p class="text-xs font-body font-light animate-fade-up">{texts.privacy.security[key]}</p>
+      ))}
+    </div>
+
+    <div class="flex flex-col gap-3">
+      <h2 class="text-sm font-heading font-bold animate-fade-up">{"12. Contato"}</h2>
+      <p class="text-xs font-body font-light animate-fade-up">{"E-mail: help@zaylo.com.br"}</p>
+    </div>
+
+    <img src="/logos/favicon-zaylo.png" alt="Zaylo" class="mx-auto mt-8 w-8 opacity-80 animate-fade-up" />
+  </div>
+</section>
+
+<style>
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .animate-fade-up {
+    animation: fadeUp 0.35s ease-out both;
+  }
+</style>
