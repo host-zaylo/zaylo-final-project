@@ -1,0 +1,20 @@
+---
+import Layout from "../layouts/Layout.astro";
+import BlogList from "../components/blog/BlogList";
+import BlogHeader from "../components/blog/BlogHeader";
+import { getCollection } from "astro:content";
+
+const posts = await getCollection("blog");
+const sortedPosts = posts.sort((a, b) => b.data.date.localeCompare(a.data.date));
+---
+
+<Layout title="Blog">
+  <div class="font-blog flex flex-col w-full py-16 px-8 h-full justify-start mt-4 items-center bg-[#131819]">
+    <div class="flex justify-start items-start w-full">
+      <BlogHeader client:load />
+    </div>
+    <div class="relative">
+      <BlogList posts={sortedPosts} client:load />
+    </div>
+  </div>
+</Layout>
