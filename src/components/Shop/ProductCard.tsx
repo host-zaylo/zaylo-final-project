@@ -141,7 +141,7 @@ function QuickShopModal({ product, selectedVariant, setSelectedVariant, isOpen, 
             >
               {images.map((img: string, i: number) => (
                 <div key={i} className="flex-shrink-0 w-64 sm:w-80 aspect-[3/4] border border-white/20 shadow-md flex justify-center items-center">
-                  <img src={img} alt={`${product.title} ${i + 1}`} className="w-full h-full object-contain" loading="lazy" />
+                  <img src={img} alt={`${product.title} ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
                 </div>
               ))}
             </div>

@@ -334,7 +334,7 @@ Mais controle, mais equilíbrio, mais fluidez no passeio.`,
     id: 5,
     slug: "bungee-harness",
     title: "Bungee Harness",
-    price: 189.00,
+    price: 169.00,
     category: "Peitoral",
     mainImg: "/products/bungee-harness/black-yellow/01.webp",
     description: `Menos impacto. Mais fluidez.
