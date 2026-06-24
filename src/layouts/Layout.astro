@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css'
-import FooterComponent from "../components/UI/Footer.astro";
 import AppWrapper from '../components/UI/AppWrapper';
+import FooterComponent from '../components/UI/Footer.astro';
 ---
 <!-- Website made by industriebrasil.com.br -->
 <!doctype html>
@@ -10,27 +10,27 @@ import AppWrapper from '../components/UI/AppWrapper';
 	<head>
 			<meta charset="UTF-8" />
 			<meta name="viewport" content="width=device-width" />
-			<link rel="icon" type="image/png" sizes='32x32' href="/logos/favicon.png" />
+				<link rel="icon" type="image/png" sizes='32x32' 
+				href="/logos/favicon.png" />
 			<meta name="generator" content={Astro.generator} />
 			<title>{Astro.props.title}</title>
 			<!-- Google tag (gtag.js) -->
-			<script async 
-			src="https://www.googletagmanager.com/gtag/js?id=G-BTC5XWKW6Y">
-			</script>
-			<script>
-				window.dataLayer = window.dataLayer || [];
-				function gtag(){dataLayer.push(arguments);}
-				gtag('js', new Date());
+			<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-NG7Z8769');</script>
 
-				gtag('config', 'G-BTC5XWKW6Y');
-			</script>
 	</head>
 	
 	<body>
+		<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-NG7Z8769"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 		  <AppWrapper client:load>
 				<slot />
 			</AppWrapper>
-  		  <FooterComponent />
+		  <FooterComponent />
+   		
 	</body>
 
 </html>

@@ -201,7 +201,7 @@ Sem dúvida, um dos peitorais mais seguros e sofisticados do mercado.`,
     slug: "leash",
     title: "Leash",
     price: 169.00,
-    category: "Coleira",
+    category: "Guia",
     mainImg: "/products/leash/black-lemon/01.webp",
     description: `Força estrutural, precisão no controle e estética minimalista.
 
@@ -280,7 +280,7 @@ Design único e exclusivo ZAYLO®.`,
     slug: "double-leash",
     title: "Double Leash",
     price: 219.00,
-    category: "Coleira",
+    category: "Guia",
     mainImg: "/products/double-leash/black-lemon/01.webp",
     description: `Controle absoluto, mesmo com dois.
 
@@ -384,8 +384,8 @@ O resultado é um passeio mais confortável, controlado e sem trancos.`,
     id: 6,
     slug: "freedom-leash",
     title: "Freedom Leash",
-    price: 259.99,
-    category: "Coleira",
+    price: 259.00,
+    category: "Guia",
     mainImg: "/products/freedom-leash/black-lemon/01.webp",
     description: `Liberdade em movimento.
 
