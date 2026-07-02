@@ -538,6 +538,33 @@ const CheckoutPage = () => {
 
       // Generate short order ID (max 100 chars for Asaas externalReference)
       const orderId = `ZY${Date.now()}`;
+      const orderData = {
+        nome: name,
+        email: email,
+        cpfCnpj: cpf.replace(/\D/g, ""),
+        itens: cartItems.map(i => ({
+          id: i.id,
+          slug: i.slug,
+          titulo: i.title,
+          quantidade: i.quantity,
+          preco: i.price,
+          peso: i.weight,
+          tamanhoSelecionado: i.selectedSize,
+          corVarianteSelecionada: i.selectedVariantColor,
+          produtoId: i.id,
+        })),
+        total,
+        telefone: phone.replace(/\D/g, ""),
+        endereco: { cep, logradouro: address, numero: addressNumber, complemento: complement, bairro: district, cidade: city, uf: state },
+        freteSelecionado: selectedShipping,
+        condicaoPagamento: paymentMethod === "CREDIT_CARD" && installmentCount > 1 ? `${installmentCount}x` : "1x",
+        observacao: paymentMethod === "CREDIT_CARD"
+          ? `Cartão de Crédito${installmentCount > 1 ? ` - ${installmentCount}x` : ""}`
+          : "PIX",
+        cupom: appliedCoupon?.code ?? null,
+        descontoPercent: appliedCoupon?.discountPercent ?? null,
+        descontoValor: appliedCoupon ? discountAmount : null,
+      };
 
       // Save full order metadata server-side keyed by orderId
       await fetch("/api/asaas", {
@@ -546,35 +573,21 @@ const CheckoutPage = () => {
         body: JSON.stringify({
           action: "saveOrder",
           orderId,
-          orderData: {
-            nome: name,
-            email: email,
-            cpfCnpj: cpf.replace(/\D/g, ""),
-            itens: cartItems.map(i => ({
-              id: i.id,
-              slug: i.slug,
-              titulo: i.title,
-              quantidade: i.quantity,
-              preco: i.price,
-              peso: i.weight,
-              tamanhoSelecionado: i.selectedSize,
-              corVarianteSelecionada: i.selectedVariantColor,
-              produtoId: i.id,
-            })),
-            total,
-            telefone: phone.replace(/\D/g, ""),
-            endereco: { cep, logradouro: address, numero: addressNumber, complemento: complement, bairro: district, cidade: city, uf: state },
-            freteSelecionado: selectedShipping,
-            condicaoPagamento: paymentMethod === "CREDIT_CARD" && installmentCount > 1 ? `${installmentCount}x` : "1x",
-            observacao: paymentMethod === "CREDIT_CARD"
-              ? `Cartão de Crédito${installmentCount > 1 ? ` - ${installmentCount}x` : ""}`
-              : "PIX",
-            cupom: appliedCoupon?.code ?? null,
-            descontoPercent: appliedCoupon?.discountPercent ?? null,
-            descontoValor: appliedCoupon ? discountAmount : null,
-          },
+          orderData,
         }),
       });
+
+      async function savePaymentId(paymentId: string) {
+        await fetch("/api/asaas", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            action: "saveOrder",
+            orderId,
+            orderData: { ...orderData, paymentId },
+          }),
+        });
+      }
 
       const basePayload: Record<string, unknown> = {
         customer: customer.id,
@@ -626,12 +639,19 @@ const CheckoutPage = () => {
           if (!installment?.id) {
             throw new Error("Falha ao criar parcelamento");
           }
+          // Save installment ID + first payment ID so webhook can find order
+          const installmentId = installment.id;
+          const firstPaymentId = installment.payments?.[0]?.id;
+          await savePaymentId([installmentId, firstPaymentId].filter(Boolean).join(","));
         } else {
           const payment = await createAsaasPayment({
             ...basePayload,
             creditCard,
             creditCardHolderInfo,
           });
+
+          // Save payment ID so webhook can find order
+          await savePaymentId(payment.id);
 
           const isConfirmed =
             payment.status === "CONFIRMED" || payment.status === "RECEIVED"
@@ -649,6 +669,7 @@ const CheckoutPage = () => {
       } else if (paymentMethod === "PIX") {
         const payment = await createAsaasPayment(basePayload);
         setPixPaymentId(payment.id);
+        await savePaymentId(payment.id);
         const pixData = await fetchPixQrCode(payment.id);
         setPixQrCode(pixData.encodedImage);
         setPixCopyPaste(pixData.payload);
@@ -664,6 +685,7 @@ const CheckoutPage = () => {
         const payment = await createAsaasPayment(basePayload);
         setBoletoPdfUrl(payment.bankSlipUrl);
         setBoletoBarCode(payment.nossoNumero ?? "");
+        await savePaymentId(payment.id);
         saveLastOrder();
         localStorage.removeItem("cart");
         localStorage.setItem("lastOrderBoleto", JSON.stringify({ pdfUrl: payment.bankSlipUrl, barCode: payment.nossoNumero ?? "" }));

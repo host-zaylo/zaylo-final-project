@@ -5,6 +5,13 @@ import { createVenda } from "./bling-auth";
 import { buscarBlingId } from "../../data/bling-produtos";
 import { getShippingSpecs, calculatePackageDimensions } from "../../data/products";
 import { setupBlingTokensTable } from "./turso";
+import { createClient } from "@libsql/client";
+
+function getDb() {
+  const url = import.meta.env.TURSO_DB_URL ?? "";
+  const authToken = import.meta.env.TURSO_TOKEN ?? "";
+  return createClient({ url, authToken });
+}
 
 const ASAAS_WEBHOOK_SECRET = import.meta.env.ASAAS_WEBHOOK_SECRET ?? "";
 
@@ -31,14 +38,83 @@ export const POST: APIRoute = async ({ request }) => {
     await setupBlingTokensTable().catch(() => console.warn("[Bling] Falha ao criar tabela"));
     await setupOrdersTable().catch(() => console.warn("[Orders] Falha ao criar tabela"));
 
-    const orderId = payment.externalReference ?? `ZY${payment.id}`;
-    console.log("[Webhook] orderId:", orderId, "| payment.id:", payment.id);
+    let orderId = payment.externalReference ?? null;
+    let orderMeta = null;
 
-    const orderMeta = await getOrderNormalized(orderId);
+    // Strategy 1: Look up by externalReference
+    if (orderId) {
+      orderMeta = await getOrderNormalized(orderId);
+    }
+
+    // Strategy 2: Look up by payment.id in payment_id column (LIKE match for multi-value)
+    if (!orderMeta && payment.id) {
+      console.log("[Webhook] Tentando buscar pedido por payment_id:", payment.id);
+      try {
+        const orderByPid = await getDb().execute({
+          sql: "SELECT id FROM orders WHERE payment_id LIKE ? LIMIT 1",
+          args: [`%${payment.id}%`],
+        });
+        if (orderByPid.rows.length > 0) {
+          orderId = orderByPid.rows[0].id as string;
+          orderMeta = await getOrderNormalized(orderId);
+          console.log("[Webhook] Pedido encontrado por payment_id:", orderId);
+        }
+      } catch (e) {
+        console.warn("[Webhook] Erro ao buscar por payment_id:", e);
+      }
+    }
+
+    // Strategy 2b: Look up by payment.installment (installment group ID)
+    if (!orderMeta && payment.installment) {
+      console.log("[Webhook] Tentando buscar pedido por installment:", payment.installment);
+      try {
+        const orderByInst = await getDb().execute({
+          sql: "SELECT id FROM orders WHERE payment_id LIKE ? LIMIT 1",
+          args: [`%${payment.installment}%`],
+        });
+        if (orderByInst.rows.length > 0) {
+          orderId = orderByInst.rows[0].id as string;
+          orderMeta = await getOrderNormalized(orderId);
+          console.log("[Webhook] Pedido encontrado por installment:", orderId);
+        }
+      } catch (e) {
+        console.warn("[Webhook] Erro ao buscar por installment:", e);
+      }
+    }
+
+    // Strategy 3: Search all unprocessed orders by customer CPF
+    if (!orderMeta && payment.cpfCnpj) {
+      const cpfClean = String(payment.cpfCnpj).replace(/\D/g, "");
+      if (cpfClean) {
+        console.log("[Webhook] Tentando buscar pedido por CPF:", cpfClean);
+        try {
+          const orderByCpf = await getDb().execute({
+            sql: "SELECT id FROM orders WHERE cpf_cnpj = ? AND bling_processed = 0 LIMIT 1",
+            args: [cpfClean],
+          });
+          if (orderByCpf.rows.length > 0) {
+            orderId = orderByCpf.rows[0].id as string;
+            orderMeta = await getOrderNormalized(orderId);
+            console.log("[Webhook] Pedido encontrado por CPF:", orderId);
+          }
+        } catch (e) {
+          console.warn("[Webhook] Erro ao buscar por CPF:", e);
+        }
+      }
+    }
+
+    // Strategy 4: Use payment.id as last resort fallback
     if (!orderMeta) {
-      console.warn("[Webhook] Pedido não encontrado no Turso:", orderId);
+      orderId = `ZY${payment.id}`;
+      orderMeta = await getOrderNormalized(orderId);
+    }
+
+    if (!orderMeta) {
+      console.warn("[Webhook] Pedido não encontrado no Turso:", orderId, "payment:", payment.id);
       return new Response(JSON.stringify({ ok: true, skipped: true }), { status: 200 });
     }
+
+    console.log("[Webhook] orderId:", orderId, "| payment.id:", payment.id);
 
     const emailSent = !!orderMeta.emailSent;
     const blingProcessed = !!orderMeta.blingProcessed;
