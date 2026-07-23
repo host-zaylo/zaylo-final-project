@@ -19,7 +19,7 @@ E-commerce brasileiro de acessórios PET, SSR-first.
 | Email | Resend (transactional) |
 | Blog upload | GitHub API (admin envia .md ao repositório) |
 | Deploy | Vercel (`@astrojs/vercel`, serverless) |
-| Fontes | Helvetica Now, Roboto, SF Pro (self-hosted) |
+| Fontes | Helvetica Now, Roboto, SF Pro |
 
 ---
 
