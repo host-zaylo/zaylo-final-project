@@ -1,6 +1,7 @@
 # Zaylo v4 — E-commerce PET (Astro 5 + React 19)
 
-E-commerce brasileiro de acessórios PET, SSR-first, deploy em Vercel.
+E-commerce brasileiro de acessórios PET, SSR-first.
+## OBS: Projeto desenvolvido para um cliente real. A implantação em produção não ocorreu devido ao encerramento da negociação comercial antes do lançamento.
 
 ---
 
