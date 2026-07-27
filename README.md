@@ -253,7 +253,4 @@ npm run preview  # Preview local do build
 
 - **Login**: páginas UI-only (`LoginPage`, `SignupPage`, `ForgotPasswordPage`) — sem integração com backend
 - **ContactForm**: usa `data-netlify="true"`, mas o deploy é Vercel — precisa migrar
-- **Litco Skateboarding**: textos placeholder remanescentes em páginas `sobre`, `ajuda`, `privacidade`
-- **Stripe**: dependência presente em `package.json` mas não utilizada no código
-- **ContentPageWrapper**: referência a `.module.css` que não existe (usa Tailwind inline)
 - **CartContext**: fallback síncrono global permite acesso ao carrinho fora da árvore React (necessário para `checkout.astro` e `success.astro`)
